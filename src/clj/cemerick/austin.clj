@@ -394,10 +394,17 @@ this command.)  The default :exec-cmds is
 e.g. to start a browser-repl in the background using Chrome on OS X,
 evaluate:
 
-  (exec-env :exec-cmds [\"open\" \"-ga\" \"/Applications/Google Chrome.app\"])"
-  [& {:keys [exec-cmds] :as args}]
+  (exec-env :exec-cmds [\"open\" \"-ga\" \"/Applications/Google Chrome.app\"])
+
+If you are using a different _phantomjs-compatible_ headless browser
+implementation (e.g. slimerjs, or perhaps your package manager installs
+phantomjs with a different name?), you can pass the name of that binary
+as :phantom-cmd, e.g.:
+  
+  (exec-env :phantom-cmd \"slimerjs\")"
+  [& {:keys [exec-cmds phantom-cmd] :as args}]
   (let [exec-command (or exec-cmds
-                       ["phantomjs"
+                       [(or phantom-cmd "phantomjs")
                         (let [f (doto (java.io.File/createTempFile "phantomjs_repl" ".js")
                                   .deleteOnExit
                                   (spit (str "var page = require('webpage').create();"

@@ -2,7 +2,7 @@
 
 <!-- [![Travis CI status](https://secure.travis-ci.org/cemerick/austin.png)](http://travis-ci.org/#!/cemerick/austin/builds) -->
 
-A significant refactoring of the ClojureScript standard browser-repl environment
+A significant refactoring of the ClojureScript-standard browser-repl environment
 that's as easy to "configure" and use as a Clojure REPL.
 
 [![](https://dl.dropboxusercontent.com/u/35498822/austin-6-large.png)](http://youtu.be/HoLs0V8T5AA?t=41s)
@@ -71,10 +71,14 @@ cljs.user=> (apply + (js/Array 1 2 3))
 6
 ```
 
-Austin uses uses `phantomjs` by default, so you'll need to have that
-installed and on your `PATH`.  The `phantomjs` process will be automatically
-terminated, either when you stop the ClojureScript REPL (via `:cljs/quit`), or
-the parent Clojure REPL.
+Austin uses uses `phantomjs` by default, so you'll need to have that installed
+and on your `PATH`.  If you are using a different _phantomjs-compatible_
+headless browser implementation (e.g. slimerjs, or perhaps your package manager
+installs phantomjs with a different name?), you can pass the name of that binary
+as :phantom-cmd, e.g. `(start :phantom-cmd "slimerjs")`.
+
+Whichever process is started will be automatically terminated when you stop the
+ClojureScript REPL (via `:cljs/quit`), or the parent Clojure REPL.
 
 #### Using other browser runtimes
 
@@ -112,8 +116,6 @@ shortly!**
 
 ## TODO
 
-* support for slimerjs (and for providing different names for phantomjs and
-  slimerjs to `start`, `exec-env`, etc)
 * docs for browser-connected REPL use case
 * Sample web app project using Austin
 * ISO a reasonable automated test strategy
