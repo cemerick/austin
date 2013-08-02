@@ -405,3 +405,9 @@ evaluate:
                           (.getAbsolutePath f))])
         benv (apply repl-env (apply concat (dissoc args :exec-cmds)))]
     (exec-env* benv exec-command)))
+
+;; TODO unconvinced of the utility of the reflection stuff
+;; In any case, it can't be used here, explicitly depends on cljs.browser.repl
+; Get reflection handlers hooked up. Presumably we want to do this all the time?
+#_(require 'cljs.repl.reflect)
+
