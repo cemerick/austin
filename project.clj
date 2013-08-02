@@ -4,9 +4,15 @@
   :license {:name "Eclipse Public License"
             :url "http://www.eclipse.org/legal/epl-v10.html"}
   :min-lein-version "2.0.0"
+  :source-paths ["src/clj"]
   :dependencies [[org.clojure/clojure "1.5.1"]
                  [org.clojure/clojurescript "0.0-1847"]
                  [com.cemerick/piggieback "0.0.5"]]
+
+  :repl-options {:init (require '[cemerick.austin.repls :refer :all])
+                 :nrepl-middleware [cemerick.piggieback/wrap-cljs-repl]}
+
+  ;:plugins [[com.cemerick/austin "0.1.0-SNAPSHOT"]]
 
   :deploy-repositories {"releases"
                         {:url "https://oss.sonatype.org/service/local/staging/deploy/maven2/"
