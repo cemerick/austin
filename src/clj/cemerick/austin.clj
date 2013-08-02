@@ -41,7 +41,7 @@
       (.sendResponseHeaders status (count utf8))
       (-> .getResponseBody (doto (.write utf8) .flush .close)))))
 
-(defn send-404
+(defn- send-404
   [ex path]
   (send-response ex 404
     (str "<html><body>"
@@ -58,6 +58,7 @@
                              :ordering nil
                              :opts {}
                              :*out* nil})
+
 (defonce ^:private sessions (atom {}))
 
 (defn- deliver-exchange
@@ -82,7 +83,7 @@
   [session-id f]
   (swap! sessions (fn [old] (assoc-in old [session-id :return-value-fn] f))))
 
-(defn send-for-eval
+(defn- send-for-eval
   "Given a form and a return value function, send the form to the
   browser for evaluation. The return value function will be called
   when the return value is received."
@@ -98,12 +99,14 @@
   (when-let [f (-> @sessions (get session-id) :return-value-fn)]
     (f val)))
 
-(defn repl-client-js [session-id]
+(defn- repl-client-js [session-id]
   (slurp @(:client-js (get @sessions session-id))))
 
 (defn- send-repl-client-page
   [^HttpExchange ex session-id]
-  (let [url (format "http://%s/%s/repl" (-> ex .getRequestHeaders (get "Host") first) session-id)]
+  (let [url (format "http://%s/%s/repl" 
+                    (-> ex .getRequestHeaders (get "Host") first)
+                    session-id)]
     (send-response ex 200
       (str "<html><head><meta charset=\"UTF-8\"></head><body>
             <script type=\"text/javascript\">"
@@ -116,7 +119,9 @@
 
 (defn- send-repl-index
   [ex session-id]
-  (let [url (format "http://%s/%s/repl" (-> ex .getRequestHeaders (get "Host") first) session-id)]
+  (let [url (format "http://%s/%s/repl"
+                    (-> ex .getRequestHeaders (get "Host") first)
+                    session-id)]
     (send-response ex 200
       (str "<html><head><meta charset=\"UTF-8\"></head><body>
             <script type=\"text/javascript\">"
@@ -127,7 +132,7 @@
             </script>"
            "</body></html>"))))
 
-(defn send-static
+(defn- send-static
   [ex session-id path]
   (let [opts (get @sessions session-id)]
     (if (and (:static-dir opts)
@@ -149,7 +154,11 @@
           (send-404 ex path)))
       (send-404 ex path))))
 
-(defmulti handle-post :type)
+(defmulti ^:private handle-post :type)
+  
+(defmulti ^:private handle-get
+  (fn [{:keys [http-exchange session-id path]}]
+    (when session-id path)))
 
 (defmethod handle-post :ready
   [{:keys [session-id http-exchange]}]
@@ -162,10 +171,12 @@
         (set! *print-fn* clojure.browser.repl/repl-print)] {})
     identity))
 
-(defn add-in-order [{:keys [expecting fns]} order f]
+(defn- add-in-order
+  [{:keys [expecting fns]} order f]
   {:expecting (or expecting order) :fns (assoc fns order f)})
 
-(defn run-in-order [{:keys [expecting fns]}]
+(defn- run-in-order
+  [{:keys [expecting fns]}]
   (loop [order expecting
          fns fns]
     (if-let [f (get fns order)]
@@ -173,7 +184,7 @@
           (recur (inc order) (dissoc fns order)))
       {:expecting order :fns fns})))
 
-(defn constrain-order
+(defn- constrain-order
   "Elements to be printed in the REPL will arrive out of order. Ensure
   that they are printed in the correct order."
   [session-id order f]
@@ -197,24 +208,36 @@
       (return-value session-id content)
       (deliver-exchange session-id http-exchange))))
 
+(defn- request-path
+  [^HttpExchange req]
+  (-> req .getRequestURI .getPath))
+
+(defmethod handle-get "/start"
+  [{:keys [http-exchange session-id]}]
+  (send-repl-index http-exchange session-id))
+
+(defmethod handle-get :default
+  [{:keys [http-exchange session-id path]}]
+  (if session-id
+    (if path
+      (send-static http-exchange session-id path) 
+      (send-repl-client-page http-exchange session-id))    
+    (send-404 http-exchange (request-path http-exchange))))
+
 (defn ^:private handle-request
   [^HttpExchange req]
-  (let [uri (-> req .getRequestURI .getPath)
-        [[_ session-id static-path]] (re-seq #"/(\d+)/repl(/.+)?" uri)]
+  (let [[[_ session-id static-path]] (re-seq #"/(\d+)/repl(/.+)?" (request-path req))]
     (try
       (case (.getRequestMethod req)
-        "GET" (cond
-                (and session-id (= static-path "/start")) (send-repl-index req session-id)
-                (and session-id static-path) (send-static req session-id static-path)
-                session-id (send-repl-client-page req session-id)
-                :default (send-404 req uri))
-        "POST" (let [message (-> req .getRequestBody io/reader slurp read-string)]
-                 (handle-post (assoc message
-                                :http-exchange req
-                                :session-id session-id))))
+        "GET" (handle-get {:path static-path
+                           :session-id session-id
+                           :http-exchange req})
+        "POST" (handle-post (assoc (-> req .getRequestBody io/reader slurp read-string)
+                                   :http-exchange req
+                                   :session-id session-id)))
       (catch Throwable t (.printStackTrace t)))))
 
-(defn browser-eval
+(defn- browser-eval
   "Given a string of JavaScript, evaluate it in the browser and return a map representing the
    result of the evaluation. The map will contain the keys :type and :value. :type can be
    :success, :exception, or :error. :success means that the JavaScript was evaluated without
@@ -230,7 +253,7 @@
              {:status :error
               :value (str "Could not read return value: " ret)})))))
 
-(defn load-javascript
+(defn- load-javascript
   "Accepts a REPL environment, a list of namespaces, and a URL for a
   JavaScript file which contains the implementation for the list of
   namespaces. Will load the JavaScript file into the REPL environment
@@ -254,7 +277,7 @@
   (-tear-down [this]
     (swap! sessions dissoc (:session-id this))))
 
-(defn compile-client-js [opts]
+(defn- compile-client-js [opts]
   (cljsc/build '[(ns clojure.browser.repl.client
                    (:require [goog.events :as event]
                              [clojure.browser.repl :as repl]))
@@ -266,7 +289,7 @@
                {:optimizations (:optimizations opts)
                 :output-dir (:working-dir opts)}))
 
-(defn create-client-js-file [opts file-path]
+(defn- create-client-js-file [opts file-path]
   (let [file (io/file file-path)]
     (when (not (.exists file))
       (spit file (compile-client-js opts)))
@@ -308,7 +331,7 @@
   "
   [& {:as opts}]
   (let [opts (merge (BrowserEnv.)
-                    {:optimizations :whitespace
+                    {:optimizations :simple
                      :working-dir   ".repl"
                      :serve-static  true
                      :static-dir    ["." "out/"]
@@ -336,13 +359,14 @@
     (println (str "Browser-REPL ready @ " (:entry-url opts)))
     opts))
 
+; an IJavaScriptEnv that delegates to another [browser-env], but also manages
+; the lifecycle of an external java.lang.Process that actually hosts evalution
 (deftype DelegatingExecEnv [browser-env command ^:volatile-mutable process]
   cljs.repl/IJavaScriptEnv
   (-setup [this]
     (cljs.repl/-setup browser-env)
     (let [command (into-array String (concat command [(:entry-url browser-env)]))]
       (set! process (.. Runtime getRuntime (exec command))))
-    (def k process)
     this)
   (-evaluate [this a b c] (cljs.repl/-evaluate browser-env a b c))
   (-load [this ns url] (cljs.repl/-load browser-env ns url))
@@ -367,11 +391,10 @@ this command.)  The default :exec-cmds is
 
   [\"phantomjs\" \"/path/to/generated-temp-phantomjs-script.js\"]
 
-e.g. to open the browser-repl in the background using Chrome on OS X,
-you can specify:
+e.g. to start a browser-repl in the background using Chrome on OS X,
+evaluate:
 
-  (exec-env :exec-cmds [\"open\" \"-ga\" \"/Applications/Google Chrome.app\"]
-"
+  (exec-env :exec-cmds [\"open\" \"-ga\" \"/Applications/Google Chrome.app\"])"
   [& {:keys [exec-cmds] :as args}]
   (let [exec-command (or exec-cmds
                        ["phantomjs"
