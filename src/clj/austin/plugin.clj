@@ -19,4 +19,9 @@
                  [['com.cemerick/austin austin-version]])
       (update-in [:repl-options :nrepl-middleware]
                  (fnil into [])
-                 '[cemerick.piggieback/wrap-cljs-repl])))
+                 '[cemerick.piggieback/wrap-cljs-repl])
+      (update-in [:repl-options :injections]
+                 (fnil into [])
+                 '[(require '[cemerick.austin.repls
+                              :refer (exec)
+                              :rename {exec austin-exec}])])))
