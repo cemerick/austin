@@ -1,16 +1,12 @@
-(ns ^{:doc "Convenience functions for starting REPLs assuming an nREPL +
-           piggieback toolchain."}
-  cemerick.austin.repls
+(ns cemerick.austin.repls
   (:require [cemerick.austin :refer (exec-env)]
-            [cemerick.piggieback :refer (cljs-repl)]))
+            [clojure.tools.nrepl.middleware.interruptible-eval :as nrepl-eval]
+            [cemerick.piggieback :refer (cljs-repl)]
+            cljs.repl))
 
-(defn start
+(defn exec
   [& exec-env-args]
-  ;; TODO should we implicitly merge in :libs [""]?
-  ;; http://dev.clojure.org/jira/browse/CLJS-526 &
-  ;; http://dev.clojure.org/jira/browse/CLJS-521
-  (cljs-repl :repl-env (doto (apply exec-env exec-env-args)
-                         ; TODO https://github.com/cemerick/piggieback/issues/10
-                         cljs.repl/-setup)))
-
-
+  (let [env (apply exec-env exec-env-args)]
+    (if (thread-bound? #'nrepl-eval/*msg*)
+    (cljs-repl :repl-env env)
+    (cljs.repl/repl env))))
