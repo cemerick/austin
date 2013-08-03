@@ -41,57 +41,91 @@ Austin contains some Leiningen middleware that does the following:
   ClojureScript and Piggieback.
 * Modifies your project's `:repl-options` to include Piggieback's
   `wrap-cljs-repl` middleware.
+* Adds `(require '[cemerick.austin.repls :refer (exec) :rename {exec
+  austin-exec}])` to your project's `:injections`, thus making
+  `cemerick.austin.repls/exec` available as `austin-exec` in the `user`
+  namespace.
 
 ## Usage
 
-**All examples and discussions currently here assume the use of an nREPL
-toolchain (e.g. nrepl.el, vim-fireplace, Counterclockwise, etc).** Austin can be
-used without nREPL, I just haven't documented it yet.
+_If you're impatient, [skip on down](#project-repls) to start a ClojureScript
+REPL using phantomjs/slimerjs/Chrome/etc in about 10 seconds._
 
-There are approximately two ClojureScript REPL use cases: one where you want to connect a ClojureScript REPL to your front-end running in a full GUI browser, and one 
+Austin provides two types of ClojureScript REPL environments.  One, returned by
+calls to `cemerick.austin/repl-env`, is analogous to the standard ClojureScript
+browser-REPL environment implemented in `cljs.repl.browser`, with various
+usability improvements.  The other, returned by calls to
+`cemerick.austin/exec-env`, provides all the same functionality as `repl-env`,
+but also fully manages the lifecycle of an external JavaScript runtime that is
+used to service all REPL interactions (i.e. you don't need to have an app
+running in a GUI browser to get a browser-REPL going).  Either of these REPL
+environments can be used with either of:
 
-### Headless REPL
+* `cljs.repl/repl`, described in the various "core" ClojureScript tutorials as
+  the primary entry point for all things REPL.  This is suitable in terminal
+  settings, can be used w/ e.g. `inferior-lisp` in emacs, and so on, but cannot
+  be used with nREPL.
+* `cemerick.piggieback/cljs-repl`, the nREPL-compatible analogue to
+  `cljs.repl/repl`, provided by Piggieback
 
-This is where all you really want is a "headless" ClojureScript REPL that has all of your project's dependencies, sources, and other resources available.  
+Austin's two types of REPL environments roughly correspond to the two primary
+scenarios for ClojureScript REPLs:
 
-Start your project's Clojure REPL, e.g. `lein repl`, or the equivalent in
-any other nREPL environment (or, you can clone an nREPL session
-of an already-running REPL, thus making it easy to have a session plugged into
-"both sides", Clojure and ClojureScript), and call
-`cemerick.austin.repls/start`:
+* _Project_ REPLs, where you want a ClojureScript REPL that has all of your
+  project's dependencies, sources, and other resources available, but is
+  generally not using or requiring your application's front-end to be running in
+  a GUI browser, i.e. a headless JavaScript runtime is sufficient, which may or
+  may not have a DOM.  This is generally when `exec-env` is used.
+* _Browser-connected REPLs_, the original use case of ClojureScript
+  browser-REPLs, where you want a ClojureScript REPL connected to a browser
+  runtime within which you've loaded your front-end application.
 
-```clojure
-user=> (require '[cemerick.austin.repls :refer (start)])
-nil
-user=> (start)
-Browser-REPL ready @ http://localhost:59423/5546/repl/start
-Type `:cljs/quit` to stop the ClojureScript REPL
-nil
-cljs.user=> (apply + (js/Array 1 2 3))
-6
-```
+This nomenclature is a bit hand-wavy, since the JavaScript runtimes used by
+project REPLs are almost always _also_ browsers; hopefully I'll come up with a
+better term for the first category eventually.
 
-Austin uses uses `phantomjs` by default, so you'll need to have that installed
+### Project REPLs
+
+`exec-env` provides the easiest way to start a ClojureScript REPL.  Just pass
+the result of calling it to the ClojureScript REPL function that corresponds
+with your environment:
+
+* If you're using nREPL, `(cemerick.piggieback/cljs-repl :repl-env (cemerick.austin/exec-env))`
+* If you're not using nREPL, `(cljs.repl/repl (cemerick.austin/exec-env))`
+
+Or, simply call `(cemerick.austin.repls/exec)`, a convenience function that will
+detect whether you're using nREPL or not, and pass a new exec environment to the
+correct ClojureScript REPL function.  _Note that `cemerick.austin.repls/exec`
+passes all of its arguments along to `exec-env`._
+
+#### `exec-env`'s browser runtimes
+
+Any of the above options will give you a headless ClojureScript REPL that has all
+of your project's dependencies, sources, and other resources available.
+`exec-env` uses uses `phantomjs` by default, so you'll need to have that installed
 and on your `PATH`.  If you are using a different _phantomjs-compatible_
 headless browser implementation (e.g. slimerjs, or perhaps your package manager
 installs phantomjs with a different name?), you can pass the name of that binary
-as :phantom-cmd, e.g. `(start :phantom-cmd "slimerjs")`.
+as :phantom-cmd, e.g. `(exec-env :phantom-cmd "slimerjs")`.
 
 Whichever process is started will be automatically terminated when you stop the
 ClojureScript REPL (via `:cljs/quit`), or the parent Clojure REPL.
 
-#### Using other browser runtimes
+##### Using other browser runtimes
 
 I've been saying "headless" here because it's often most convenient to avoid
 using "headed" browsers, which necessarily open a new window for each
 ClojureScript REPL you start. But, if you really want to, you _can_ use a full
-GUI browser in this scenario.  To do this, just pass the terminal commands
-necessary to start your preferred browser (such that Austin can append the
-browser-repl URL to the command) to `cemerick.austin.repls/start` as a
-`:exec-cmds` vector keyword argument:
+GUI browser with `exec-env`, which can be handy if you need to see the results
+of DOM manipulations, etc., without having to set up and connect to a browser
+running your application.  To do this, just pass the terminal commands necessary
+to start your preferred browser (such that Austin can append the browser-repl
+URL to the command) to `exec-env` or `exec` as a `:exec-cmds` vector keyword
+argument:
 
 ```clojure
-user=> (start :exec-cmds ["open" "-ga" "/Applications/Google Chrome.app"])
+user=> (cemerick.austin.repls/exec
+         :exec-cmds ["open" "-ga" "/Applications/Google Chrome.app"])
 Browser-REPL ready @ http://localhost:59423/4877/repl/start
 Type `:cljs/quit` to stop the ClojureScript REPL
 nil
@@ -99,20 +133,19 @@ cljs.user=> (apply + (js/Array 1 2 3))
 6
 ```
 
-The command strings passed to `start` will open the browser-REPL endpoint URL in
-a new Chrome window in the background on Mac OS X.  Substitute whatever
-invocation you like for your preferred browser / operating system.
+The command strings passed to `exec` in this example will open the browser-REPL
+endpoint URL in a new Chrome window in the background on Mac OS X.  Substitute
+whatever invocation you like for your preferred browser / operating system.
 
 ### Browser-connected REPL
 
-You want a ClojureScript REPL connected to a browser runtime within which you've
-loaded your front-end application.  This was always the primary use case for the
-original browser-repl.
+This was always the primary use case for the original browser-repl: load your
+application up in a browser, have it connect back to your Clojure /
+ClojureScript compiler environment, and you can develop/debug/inspect/etc your
+running ClojureScript application as it runs in its target environment.
 
-**This is fully implemented, but I haven't written up docs for it yet.  Coming
-shortly!**
-
-##
+**This is fully implemented/supported in Austin, but I haven't written up docs
+for it yet.  Coming shortly!**
 
 ## TODO
 
