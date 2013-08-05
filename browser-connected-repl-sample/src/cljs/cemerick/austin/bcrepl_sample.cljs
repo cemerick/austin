@@ -4,3 +4,7 @@
 (defn hello
   []
   (js/alert "hello"))
+
+(defn whoami
+  []
+  (.-userAgent js/navigator))
