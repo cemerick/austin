@@ -1,6 +1,4 @@
-# Sample project demonstrating real-world usage of
-[Austin](http://github.com/cemerick/austin)'s browser-connected REPL
-support
+# Sample project demonstrating real-world usage of [Austin](http://github.com/cemerick/austin)'s browser-connected REPL support
 
 If you're reading this on github, feel free to follow along, but it'll
 be a lot more fun if you clone [the

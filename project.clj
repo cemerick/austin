@@ -1,4 +1,4 @@
-(defproject com.cemerick/austin "0.1.0-SNAPSHOT"
+(defproject com.cemerick/austin "0.1.0"
   :description "The ClojureScript browser-repl, rebuilt stronger, faster, easier."
   :url "http://github.com/cemerick/austin"
   :license {:name "Eclipse Public License"
