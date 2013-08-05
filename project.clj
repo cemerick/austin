@@ -9,8 +9,7 @@
                  [org.clojure/clojurescript "0.0-1847"]
                  [com.cemerick/piggieback "0.1.0"]]
 
-  :repl-options {:init (require '[cemerick.austin.repls :refer :all])
-                 :nrepl-middleware [cemerick.piggieback/wrap-cljs-repl]}
+  :repl-options {:nrepl-middleware [cemerick.piggieback/wrap-cljs-repl]}
 
   ;:plugins [[com.cemerick/austin "0.1.0-SNAPSHOT"]]
 

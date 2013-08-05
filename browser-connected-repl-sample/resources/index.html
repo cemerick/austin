@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <script src="/app.js" type="text/javascript"></script>
+    </head>
+    <body>
+        <h1>Sample project demonstrating real-world usage of <a
+                href="http://github.com/cemerick/austin">Austin</a>'s browser-connected REPL
+            support</h1>
+        <p>If you're reading this on github, feel free to follow along, but
+            it'll be a lot more fun if you clone <a
+                href="http://github.com/cemerick/austin">the repo</a> and get
+            your hands dirty!</p>
+
+        <p>Austin is a really just a significant refactoring of ClojureScript's
+            standard browser-REPL, so <a href="">all of its tutorials</a> generally
+            apply to Austin as well.  However, Austin provides a workflow that I
+            personally find much easier to use, especially if I want to have
+            multiple browser-connected REPLs in flight at the same time.</p>
+
+        <h2>Running the sample app</h2>
+
+        Assuming you've cloned <a href="">Austin's repo</a> to
+        <code>$AUSTIN</code> (wherever that is), do this:
+
+        <ol>
+            <li><code>cd</code> to
+                <code>$AUSTIN/browser-connected-repl-sample</code>, and run:
+                <pre>$ lein do cljsbuild once, repl</pre> This will compile the
+                dummy sample ClojureScript namespace in
+                <code>$AUSTIN/src/cljs</code>, which happens to require the
+                ClojureScript browser-REPL client-side namespace.</li>
+            <li>Once you're in the REPL (it will start up in the
+                sample app's main namespace,
+                <code>cemerick.austin.bcrepl-sample</code>), evaluate
+                <code>(run)</code>.  That just starts jetty on port
+                <code>8080</code>; if you open a browser to <a
+                    href="http://localhost:8080">that server</a>, you'll
+                see this page (which the sample re-uses as its only
+                content).</li>
+            <li>Create a new Austin ClojureScript REPL environment,
+                like so:
+                <pre>(def repl-env (reset! cemerick.austin.repls/browser-repl-env
+                      (cemerick.austin/repl-env)))</pre>
+                This also <code>reset!</code>'s the new REPL environment into the
+                <code>browser-repl-env</code> atom.  The sample app uses
+                code like this:
+
+                <pre>[:script (cemerick.austin.repls/browser-connected-repl-js)]</pre>
+
+                to drop a snippet of JavaScript into the page that will cause
+                the browser-REPL to connect to whichever REPL environment is in
+                <code>browser-repl-env</code>; your app should do likewise.</li>
+            <li>Turn your Clojure REPL into a ClojureScript REPL
+                tied to that REPL environment with
+                <pre>(cemerick.austin.repls/cljs-repl repl-env)</pre></li>
+            <li>Now that the ClojureScript REPL is ready, you need to load <a
+                    href="http://localhost:8080">http://localhost:8080</a>, or
+                reload it if you brought it up before the REPL environment was
+                created and <code>reset!</code> into the
+                <code>browser-repl-env</code> atom.  Once you do that, evaluate
+                some ClojureScript to
+                make sure your shiny new REPL
+                is working, e.g. <pre>(js/alert "Salut!")</pre></li>
+        </ol>
+
+        <p>
+            You can reload your app's page as many times as you like; it will
+            re-connect on each page load to the same REPL environment.  If you want
+            to connect to a <em>different</em> REPL environment, just put the
+            it into <code>browser-repl-env</code> prior to loading the page you'd
+            like to have connected to it.  At some point, Austin may provide a
+            bit of ClojureScript that will allow you to choose (from within the
+            browser) which REPL environment to which you'd like to connect…
+        </p>
+    </body>
+</html>
