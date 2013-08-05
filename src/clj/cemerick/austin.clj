@@ -100,7 +100,12 @@
     (f val)))
 
 (defn- repl-client-js [session-id]
-  (slurp @(:client-js (get @sessions session-id))))
+  (if-let [session (get @sessions session-id)]
+    (slurp @(:client-js session))
+    ; TODO maybe we can make -tear-down yank the REPL environment out of
+    ; browser-repl-env automatically?
+    (format ";console.error('Austin ClojureScript REPL session %s does not exist. Maybe you have a stale ClojureScript REPL environment in `cemerick.austin.repls/browser-repl-env`?');"
+            session-id)))
 
 (defn- send-repl-client-page
   [^HttpExchange ex session-id]
