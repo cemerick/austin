@@ -20,7 +20,7 @@
       (update-in [:repl-options :nrepl-middleware]
                  (fnil into [])
                  '[cemerick.piggieback/wrap-cljs-repl])
-      (update-in [:repl-options :injections]
+      (update-in [:injections]
                  (fnil into [])
                  '[(require '[cemerick.austin.repls
                               :refer (exec)
