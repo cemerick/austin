@@ -17,8 +17,9 @@ possible, with full support for the nREPL toolchain.
 
 I've been using this browser-repl alternative for ~six months with good results,
 and others have banged it around some as well.  That said, I've only recently
-begun to think about the "UX" around its configuration and project integration,
-so changes in that department are almost surely going to happen.
+begun to think about the API around its configuration and project integration
+(in particular, the `cemerick.austin.repls` namespace).  It all works nice, but
+changes in that department are almost surely going to happen.
 
 ## Changelog
 
@@ -69,7 +70,7 @@ Austin contains some Leiningen middleware that does the following:
 * Adds `(require '[cemerick.austin.repls :refer (exec) :rename {exec
   austin-exec}])` to your project's `:injections`, thus making
   `cemerick.austin.repls/exec` available as `austin-exec` in the `user`
-  namespace.
+  namespace for your fast'n'easy ClojureScript browser REPL pleasure.
 
 ## Usage
 
@@ -111,17 +112,22 @@ better term for the first category eventually.
 
 ### Project REPLs
 
-`exec-env` provides the easiest way to start a ClojureScript REPL.  Just pass
-the result of calling it to the ClojureScript REPL function that corresponds
-with your environment:
+To start a project REPL, just pass the result of calling `exec-env` to the
+ClojureScript REPL function that corresponds with your environment:
 
-* If you're using nREPL, `(cemerick.piggieback/cljs-repl :repl-env (cemerick.austin/exec-env))`
+* If you're using nREPL, `(cemerick.piggieback/cljs-repl :repl-env
+  (cemerick.austin/exec-env))`
 * If you're not using nREPL, `(cljs.repl/repl (cemerick.austin/exec-env))`
 
-Or, simply call `(cemerick.austin.repls/exec)`, a convenience function that will
-detect whether you're using nREPL or not, and pass a new exec environment to the
-correct ClojureScript REPL function.  _Note that `cemerick.austin.repls/exec`
-passes all of its arguments along to `exec-env`._
+Alternatively, you can use `cemerick.austin.repls/cljs-repl`, a convenience
+function that will detect whether you're using nREPL or not, and pass a new exec
+environment to the correct ClojureScript REPL function.  So,
+`(cemerick.austin.repls/cljs-repl (cemerick.austin/exec-env))` is equivalent to
+the two examples above; this particular combination is so commonly used that
+it's wrapped up into a single function, `(cemerick.austin.repls/exec)`, probably
+the easiest way to start a ClojureScript REPL that uses a browser JavaScript
+runtime.  _Note that `cemerick.austin.repls/exec` passes all of its arguments
+along to `exec-env`._
 
 #### `exec-env`'s browser runtimes
 
