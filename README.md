@@ -22,9 +22,34 @@ so changes in that department are almost surely going to happen.
 
 ## Changelog
 
-Available [here](http://github.com/cemerick/austin/blob/master/CHANGES.md); the
-oldest entries summarize the changes made based on the original ClojureScript
-browser-repl.
+Available [here](http://github.com/cemerick/austin/blob/master/CHANGES.md).
+
+Austin is largely a refactoring of the original ClojureScript REPL.  These
+changes include:
+
+* Multiple concurrent browser-REPLs can be safely used from the same project
+* Austin's HTTP server is now always-on, and auto-selects an open port; this
+  means you can have multiple concurrent browser-REPLs running from _different_
+  projects without faffing around with `:port` arguments, etc.
+* Each browser-REPL session supports a new top-level "entry" URL that can be
+  used to easily start the REPL in a browser or other JS runtime (i.e. you don't
+  need to have a separate webapp running to initiate the browser-REPL
+  connection)
+* The entry (and REPL) URLs are available in slots on the browser-REPL's
+  environment, making it trivial to automate browser-REPL sessions with e.g.
+  phantomjs.  See ['Project REPLs'](#project-repls) for easy-mode "project"
+  REPLs.
+* Replaced the custom HTTP server with `com.sun.net.httpserver.*` bits ([a
+  standard part of J2SE
+  6+](http://docs.oracle.com/javase/7/docs/technotes/guides/net/enhancements-6.0.html))
+* The `:port` argument to `repl-env` is no longer supported; the lifecycle of
+  the server is not tied to the creation of a browser-REPL environment.  If you
+  need to get the port of the running browser-REPL server, use
+  `(get-browser-repl-port)`; if you need a URL you can use with
+  `clojure.browser.repl/connect` as shown in existing browser-REPL tutorials,
+  it's available under `:repl-url` from the browser-REPL environment you want to
+  connect to. See ['Browser-connected REPLs'](#browser-connected-repls) for
+  easy-mode browser-connected REPLs
 
 ## "Installation"
 
@@ -137,20 +162,20 @@ The command strings passed to `exec` in this example will open the browser-REPL
 endpoint URL in a new Chrome window in the background on Mac OS X.  Substitute
 whatever invocation you like for your preferred browser / operating system.
 
-### Browser-connected REPL
+### Browser-connected REPLs
 
 This was always the primary use case for the original browser-repl: load your
 application up in a browser, have it connect back to your Clojure /
 ClojureScript compiler environment, and you can develop/debug/inspect/etc your
 running ClojureScript application as it runs in its target environment.
 
-**This is fully implemented/supported in Austin, but I haven't written up docs
-for it yet.  Coming shortly!**
+This repo provides a completely self-contained sample project demonstrating and
+documenting how to use Austin for your browser-connected REPL'ing needs.  [Check
+it
+out](https://github.com/cemerick/austin/blob/master/browser-connected-repl-sample).
 
 ## TODO
 
-* docs for browser-connected REPL use case
-* Sample web app project using Austin
 * ISO a reasonable automated test strategy
 
 ## Need Help?
