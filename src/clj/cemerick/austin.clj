@@ -139,11 +139,11 @@
 
 (defn- send-static
   [ex session-id path]
-  (let [opts (get @sessions session-id)]
-    (if (and (:static-dir opts)
+  (let [opts (get @sessions session-id)
+        st-dir (-> opts :opts :static-dir)]
+    (if (and st-dir
           (not= "/favicon.ico" path))
-      (let [path   (if (= "/" path) "/index.html" path)
-            st-dir (:static-dir opts)]
+      (let [path (if (= "/" path) "/index.html" path)]
         (if-let [local-path (seq (for [x (if (string? st-dir) [st-dir] st-dir)
                                        :when (.exists (io/file (str x path)))]
                                    (str x path)))]
