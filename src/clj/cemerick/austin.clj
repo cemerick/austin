@@ -25,15 +25,37 @@
     (.setExecutor clojure.lang.Agent/soloExecutor)
     .start))
 
-(defonce server (delay (create-server 0)))
+(defonce
+  ^{:doc "A deref-able that contains the HTTP server that services all Austin REPLs."}
+  server
+  (delay (create-server 0)))
 
-(defn stop-server [] (.stop @server 0))
+(defn stop-server
+  "Stops the (assumed to be running) HTTP server that services all Austin REPLS."
+  []
+  (.stop @server 0))
+
 (defn start-server
+  "Starts the HTTP server that services all Austin REPLs.  Optionally takes a
+[port] argument.  Does not stop any already-running HTTP server, see
+`stop-server` for that.
+
+Note that Austin automatically initializes its HTTP server as a side effect of
+the first call to `get-browser-repl-port`; you don't have to call this
+before using Austin, unless you need the server running on a particular port."
   ([]
     (start-server 0))
   ([port]
-    (alter-var-root #'server (constantly (delay (create-server port))))))
-(defn get-browser-repl-port [] (-> @server .getAddress .getPort))
+   ; once people are explicitly starting the server, any derefable in `server`
+   ; is fine
+    (alter-var-root #'server (fn [_] (atom (create-server port))))))
+
+(defn get-browser-repl-port
+  "Returns the port to which the Austin HTTP server is bound.  If it is not
+already running, it will be started as a side effect of the first call to this
+function."
+  []
+  (-> @server .getAddress .getPort))
 
 (defn- send-response
   [^HttpExchange ex status string-body & {:keys [content-type]
