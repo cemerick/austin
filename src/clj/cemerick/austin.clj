@@ -113,7 +113,7 @@
 
 (defn- send-repl-client-page
   [^HttpExchange ex session-id]
-  (let [url (format "http://%s/%s/repl" 
+  (let [url (format "http://%s/%s/repl"
                     (-> ex .getRequestHeaders (get "Host") first)
                     session-id)]
     (send-response ex 200
@@ -164,7 +164,7 @@
       (send-404 ex path))))
 
 (defmulti ^:private handle-post :type)
-  
+
 (defmulti ^:private handle-get
   (fn [{:keys [http-exchange session-id path]}]
     (when session-id path)))
@@ -229,8 +229,8 @@
   [{:keys [http-exchange session-id path]}]
   (if session-id
     (if path
-      (send-static http-exchange session-id path) 
-      (send-repl-client-page http-exchange session-id))    
+      (send-static http-exchange session-id path)
+      (send-repl-client-page http-exchange session-id))
     (send-404 http-exchange (request-path http-exchange))))
 
 (defn ^:private handle-request
