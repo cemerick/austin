@@ -28,7 +28,7 @@
 (defonce server (delay (create-server)))
 
 (defn stop-server [] (.stop @server 0))
-(defn start-server [] (alter-var-root #'server #(delay (create-server))))
+(defn start-server [] (alter-var-root #'server (constantly (delay (create-server)))))
 (defn get-browser-repl-port [] (-> @server .getAddress .getPort))
 
 (defn- send-response
@@ -405,7 +405,7 @@ If you are using a different _phantomjs-compatible_ headless browser
 implementation (e.g. slimerjs, or perhaps your package manager installs
 phantomjs with a different name?), you can pass the name of that binary
 as :phantom-cmd, e.g.:
-  
+
   (exec-env :phantom-cmd \"slimerjs\")"
   [& {:keys [exec-cmds phantom-cmd] :as args}]
   (let [exec-command (or exec-cmds
