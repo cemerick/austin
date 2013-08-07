@@ -28,7 +28,7 @@
 (defonce server (delay (create-server)))
 
 (defn stop-server [] (.stop @server 0))
-(defn start-server [] (alter-var-root #'server #(delay (create-server))))
+(defn start-server [] (alter-var-root #'server (constantly (delay (create-server)))))
 (defn get-browser-repl-port [] (-> @server .getAddress .getPort))
 
 (defn- send-response
@@ -109,7 +109,7 @@
 
 (defn- send-repl-client-page
   [^HttpExchange ex session-id]
-  (let [url (format "http://%s/%s/repl" 
+  (let [url (format "http://%s/%s/repl"
                     (-> ex .getRequestHeaders (get "Host") first)
                     session-id)]
     (send-response ex 200
@@ -160,7 +160,7 @@
       (send-404 ex path))))
 
 (defmulti ^:private handle-post :type)
-  
+
 (defmulti ^:private handle-get
   (fn [{:keys [http-exchange session-id path]}]
     (when session-id path)))
@@ -225,8 +225,8 @@
   [{:keys [http-exchange session-id path]}]
   (if session-id
     (if path
-      (send-static http-exchange session-id path) 
-      (send-repl-client-page http-exchange session-id))    
+      (send-static http-exchange session-id path)
+      (send-repl-client-page http-exchange session-id))
     (send-404 http-exchange (request-path http-exchange))))
 
 (defn ^:private handle-request
@@ -405,7 +405,7 @@ If you are using a different _phantomjs-compatible_ headless browser
 implementation (e.g. slimerjs, or perhaps your package manager installs
 phantomjs with a different name?), you can pass the name of that binary
 as :phantom-cmd, e.g.:
-  
+
   (exec-env :phantom-cmd \"slimerjs\")"
   [& {:keys [exec-cmds phantom-cmd] :as args}]
   (let [exec-command (or exec-cmds
