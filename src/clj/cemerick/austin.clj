@@ -8,6 +8,7 @@
 
 (ns cemerick.austin
   (:require [clojure.java.io :as io]
+            [clojure.string :as string]
             [cljs.compiler :as comp]
             [cljs.closure :as cljsc]
             [cljs.repl :as repl])
@@ -138,6 +139,12 @@ function."
   (when-let [f (-> @sessions (get session-id) :return-value-fn)]
     (f val)))
 
+(defn- repl-client-scripts [session-id]
+  (if-let [session (get @sessions session-id)]
+    (map #(str "/" session-id "/repl" %) (-> session :opts :scripts))
+    (format ";console.error('Austin ClojureScript REPL session %s does not exist. Maybe you have a stale ClojureScript REPL environment in `cemerick.austin.repls/browser-repl-env`?');"
+            session-id)))
+
 (defn- repl-client-js [session-id]
   (if-let [session (get @sessions session-id)]
     (slurp @(:client-js session))
@@ -146,35 +153,34 @@ function."
     (format ";console.error('Austin ClojureScript REPL session %s does not exist. Maybe you have a stale ClojureScript REPL environment in `cemerick.austin.repls/browser-repl-env`?');"
             session-id)))
 
-(defn- send-repl-client-page
-  [^HttpExchange ex session-id]
-  (let [url (format "http://%s/%s/repl" 
-                    (-> ex .getRequestHeaders (get "Host") first)
-                    session-id)]
-    (send-response ex 200
-      (str "<html><head><meta charset=\"UTF-8\"></head><body>
-            <script type=\"text/javascript\">"
-           (repl-client-js session-id)
-           "</script>"
-           "<script type=\"text/javascript\">
-            clojure.browser.repl.client.start(" (pr-str url) ");
-            </script>"
-           "</body></html>"))))
-
-(defn- send-repl-index
-  [ex session-id]
+(defn- send-repl-page
+  [^HttpExchange ex session-id script-fn]
   (let [url (format "http://%s/%s/repl"
                     (-> ex .getRequestHeaders (get "Host") first)
                     session-id)]
     (send-response ex 200
-      (str "<html><head><meta charset=\"UTF-8\"></head><body>
-            <script type=\"text/javascript\">"
+      (str "<html><head><meta charset=\"UTF-8\"></head><body>"
+           (string/join
+            ""
+            (mapcat vector
+                    (repeat "<script type=\"text/javascript\" src=\"")
+                    (repl-client-scripts session-id)
+                    (repeat "\"></script>")))
+           "<script type=\"text/javascript\">"
            (repl-client-js session-id)
            "</script>"
-           "<script type=\"text/javascript\">
-            clojure.browser.repl.connect(" (pr-str url) ");
+           "<script type=\"text/javascript\">"
+           script-fn "(" (pr-str url) ");
             </script>"
            "</body></html>"))))
+
+(defn- send-repl-client-page
+  [ex session-id]
+  (send-repl-page ex session-id "clojure.browser.repl.client.start"))
+
+(defn- send-repl-index
+  [ex session-id]
+  (send-repl-page ex session-id "clojure.browser.repl.connect"))
 
 (defn- send-static
   [ex session-id path]
@@ -187,14 +193,14 @@ function."
                                        :when (.exists (io/file (str x path)))]
                                    (str x path)))]
           (send-response ex 200 (slurp (first local-path)) :content-type
-            (condp #(.endsWith %2 %1) path
-              ".html" "text/html"
-              ".css" "text/css"
-              ".html" "text/html"
-              ".jpg" "image/jpeg"
-              ".js" "text/javascript"
-              ".png" "image/png"
-              "text/plain"))
+                         (condp #(.endsWith %2 %1) path
+                           ".html" "text/html"
+                           ".css" "text/css"
+                           ".html" "text/html"
+                           ".jpg" "image/jpeg"
+                           ".js" "text/javascript"
+                           ".png" "image/png"
+                           "text/plain"))
           (send-404 ex path)))
       (send-404 ex path))))
 
@@ -372,6 +378,10 @@ function."
                   end of the REPL. Defaults to :simple.
   src:            The source directory containing user-defined cljs files. Used to
                   support reflection. Defaults to \"src/\".
+  scripts:        A sequence of paths that will be added as javascript <script>
+                  tags in the generated repl HTML pages.  The paths will be
+                  resolved relative to the :static-dir paths. Use this to add
+                  external javascript scripts.
   "
   [& {:as opts}]
   (let [opts (merge (BrowserEnv.)
