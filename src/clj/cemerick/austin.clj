@@ -25,10 +25,23 @@
     (.setExecutor clojure.lang.Agent/soloExecutor)
     .start))
 
+(defn default-server-port
+  "Returns the port to which the Austin HTTP server will be bound by default,
+either when first used or when restarted via nullary call to `start-server`.
+The sources of configuration are, in order:
+  
+  * system property `cemerick.austin.default-server-port`
+  * environment variable `AUSTIN_DEFAULT_SERVER_PORT`
+  * default, 0 (autoselection of an open port)"
+  []
+  (Integer/parseInt (or (System/getProperty "cemerick.austin.default-server-port")
+                        (System/getenv "AUSTIN_DEFAULT_SERVER_PORT")
+                        "0")))
+
 (defonce
   ^{:doc "A deref-able that contains the HTTP server that services all Austin REPLs."}
   server
-  (delay (create-server 0)))
+  (delay (create-server (default-server-port))))
 
 (defn stop-server
   "Stops the (assumed to be running) HTTP server that services all Austin REPLS."
@@ -44,7 +57,7 @@ Note that Austin automatically initializes its HTTP server as a side effect of
 the first call to `get-browser-repl-port`; you don't have to call this
 before using Austin, unless you need the server running on a particular port."
   ([]
-    (start-server 0))
+    (start-server (default-server-port)))
   ([port]
    ; once people are explicitly starting the server, any derefable in `server`
    ; is fine
