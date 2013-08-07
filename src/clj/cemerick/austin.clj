@@ -18,17 +18,21 @@
 (declare handle-request)
 
 (defn- create-server
-  []
-  (doto (HttpServer/create (InetSocketAddress. 0) 0)
+  [port]
+  (doto (HttpServer/create (InetSocketAddress. port) 0)
     (.createContext "/" (reify HttpHandler
                           (handle [this req] (handle-request req))))
     (.setExecutor clojure.lang.Agent/soloExecutor)
     .start))
 
-(defonce server (delay (create-server)))
+(defonce server (delay (create-server 0)))
 
 (defn stop-server [] (.stop @server 0))
-(defn start-server [] (alter-var-root #'server (constantly (delay (create-server)))))
+(defn start-server
+  ([]
+    (start-server 0))
+  ([port]
+    (alter-var-root #'server (constantly (delay (create-server port))))))
 (defn get-browser-repl-port [] (-> @server .getAddress .getPort))
 
 (defn- send-response
