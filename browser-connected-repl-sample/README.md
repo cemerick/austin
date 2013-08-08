@@ -19,7 +19,7 @@ is), do this:
 
 1.  `cd` to `$AUSTIN/browser-connected-repl-sample`, and run:
 
-        $ lein do cljsbuild once, repl
+        $ lein do cljsbuild once, cljsbuild repl
 
     This will compile the dummy sample ClojureScript namespace in
     `$AUSTIN/src/cljs`, which happens to require the ClojureScript
