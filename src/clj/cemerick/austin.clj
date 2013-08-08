@@ -374,6 +374,8 @@ function."
                   support reflection. Defaults to \"src/\".
   "
   [& {:as opts}]
+  {:pre [(or (not (contains? opts :session-id))
+             (string? (:session-id opts)))]}
   (let [opts (merge (BrowserEnv.)
                     {:optimizations :simple
                      :working-dir   ".repl"
