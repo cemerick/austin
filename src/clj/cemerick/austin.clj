@@ -410,7 +410,12 @@ function."
   (-setup [this]
     (cljs.repl/-setup browser-env)
     (let [command (into-array String (concat command [(:entry-url browser-env)]))]
-      (set! process (.. Runtime getRuntime (exec command))))
+      (set! process (try
+                      (.. Runtime getRuntime (exec command))
+                      (catch Exception e
+                        (throw (RuntimeException.
+                                (str "Failed to exec \"" (clojure.string/join " " command) "\"\n"
+                                     "Error was:\n  " (.getMessage e) "\n")))))))
     this)
   (-evaluate [this a b c] (cljs.repl/-evaluate browser-env a b c))
   (-load [this ns url] (cljs.repl/-load browser-env ns url))
