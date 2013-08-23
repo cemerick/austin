@@ -413,7 +413,7 @@ function."
       (set! process (try
                       (.. Runtime getRuntime (exec command))
                       (catch Exception e
-                        (throw (RuntimeException.
+                        (throw (java.io.IOException.
                                 (str "Failed to exec \"" (clojure.string/join " " command) "\"\n"
                                      "Error was:\n  " (.getMessage e) "\n")))))))
     this)
