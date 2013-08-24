@@ -185,6 +185,10 @@ documenting how to use Austin for your browser-connected REPL'ing needs.  [Check
 it
 out](https://github.com/cemerick/austin/blob/master/browser-connected-repl-sample).
 
+## Leiningen Integration
+
+Instructions on starting Austin REPLs with Leiningen can be found [here](leiningen.md).
+
 ## TODO
 
 * ISO a reasonable automated test strategy
