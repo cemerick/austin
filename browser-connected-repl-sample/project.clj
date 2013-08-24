@@ -12,5 +12,8 @@
                    :cljsbuild {:builds [{:source-paths ["src/cljs"]
                                          :compiler {:output-to "target/classes/public/app.js"
                                                     :optimizations :simple
-                                                    :pretty-print true}}]}}})
+                                                    :pretty-print true}}]}}
+                   :austin {:start-up (cemerick.austin.bcrepl-sample/run)
+                            :phantom-cmd "phantomjs"
+                            :exec-cmds ["open" "-ga" "/Applications/Google Chrome.app"]}})
 
