@@ -10,7 +10,7 @@ want your browser-connected REPLs to connect. (This is strictly a convenience,
 you can easily achieve the same thing by other means without touching this
 atom.)  A typical usage pattern might be:
   
-In your nREPL (or other REPL implmentation) session:
+In your nREPL (or other REPL implementation) session:
   
 (def repl-env (reset! cemerick.austin.repls/browser-repl-env
                       (cemerick.austin/repl-env)))
@@ -41,7 +41,7 @@ on load.  See `browser-repl-env` docs for more."
             repl-url)))
 
 (defn cljs-repl
-  "Same as `cljs.repl/repl`, except will use the apporpriate REPL entry point
+  "Same as `cljs.repl/repl`, except will use the appropriate REPL entry point
 (Piggieback's `cljs-repl` or `cljs.repl/repl`) based on the the current
 environment (i.e. whether nREPL is being used or not, respectively)."
   [repl-env & options]
