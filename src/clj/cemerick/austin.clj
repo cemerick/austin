@@ -287,7 +287,7 @@ function."
    :success, :exception, or :error. :success means that the JavaScript was evaluated without
    exception and :value will contain the return value of the evaluation. :exception means that
    there was an exception in the browser while evaluating the JavaScript and :value will
-   contain the error message. :error means that some other error has occured."
+   contain the error message. :error means that some other error has occurred."
   [session-id form]
   (let [return-value (promise)]
     (send-for-eval session-id form (partial deliver return-value))

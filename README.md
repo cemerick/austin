@@ -11,7 +11,7 @@ that's as easy to "configure" and use as a Clojure REPL.
 
 Austin has one objective: to get you into a fast ClojureScript REPL suited for
 your project running in a browser environment as quickly and painlessly as
-possible, with full support for the nREPL toolchain.  
+possible, with full support for the nREPL toolchain.
 
 [Check out the screencast demonstrating how Austin is
 used](http://www.youtube.com/watch?v=a1Bs0pXIVXc&feature=youtu.be), or forge
@@ -80,7 +80,7 @@ Austin contains some Leiningen middleware that does the following:
 ## Usage
 
 _If you're impatient, [skip on down](#project-repls) to start a ClojureScript
-REPL using phantomjs/slimerjs/Chrome/etc in about 10 seconds._ 
+REPL using phantomjs/slimerjs/Chrome/etc in about 10 seconds._
 
 Austin provides two types of ClojureScript REPL environments.  One, returned by
 calls to `cemerick.austin/repl-env`, is analogous to the standard ClojureScript
@@ -138,7 +138,7 @@ along to `exec-env`._
 
 Any of the above options will give you a headless ClojureScript REPL that has all
 of your project's dependencies, sources, and other resources available.
-`exec-env` uses uses `phantomjs` by default, so you'll need to have that installed
+`exec-env` uses `phantomjs` by default, so you'll need to have that installed
 and on your `PATH`.  If you are using a different _phantomjs-compatible_
 headless browser implementation (e.g. slimerjs, or perhaps your package manager
 installs phantomjs with a different name?), you can pass the name of that binary
