@@ -185,6 +185,29 @@ documenting how to use Austin for your browser-connected REPL'ing needs.  [Check
 it
 out](https://github.com/cemerick/austin/blob/master/browser-connected-repl-sample).
 
+### Other usage tidbits
+
+#### Server port selection
+
+By default, Austin's embedded HTTP server (which is what accepts requests from
+all JavaScript runtimes hosting a ClojureScript REPL) starts on a random
+system-assigned port.  If you're using the provided facilities for generating
+Javascript to insert into your app's HTML to connect back to the HTTP server
+(i.e. `cemerick.austin.repls/browser-connected-repl-js`), then this is ideal:
+the server will always find an open port, and running multiple applications,
+each with N browser-REPLs, will always work.
+
+However, if you need to fix the port used by the HTTP server, there are three
+ways to go about it:
+
+* set the `AUSTIN_DEFAULT_SERVER_PORT` environment variable before starting your
+  Clojure process
+* set the `cemerick.austin.default-server-port` system property; _this will only
+  take effect if you have not yet caused the server to start automatically by
+  creating a browser-REPL environment_.
+* explicitly start Austin's server, providing the desired port number, e.g.
+  `(cemerick.austin/start-server 9000)`.
+
 ## TODO
 
 * ISO a reasonable automated test strategy
