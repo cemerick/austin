@@ -11,7 +11,7 @@ that's as easy to "configure" and use as a Clojure REPL.
 
 Austin has one objective: to get you into a fast ClojureScript REPL suited for
 your project running in a browser environment as quickly and painlessly as
-possible, with full support for the nREPL toolchain.  
+possible, with full support for the nREPL toolchain.
 
 [Check out the screencast demonstrating how Austin is
 used](http://www.youtube.com/watch?v=a1Bs0pXIVXc&feature=youtu.be), or forge
@@ -63,7 +63,7 @@ Austin is available in Maven Central. Add it to your `project.clj`'s list of
 `:plugins`, probably in your `:dev` profile:
 
 ```clojure
-:profiles {:dev {:plugins [[com.cemerick/austin "0.1.0"]]}}
+:profiles {:dev {:plugins [[com.cemerick/austin "0.1.1"]]}}
 ```
 
 Austin contains some Leiningen middleware that does the following:
@@ -80,7 +80,7 @@ Austin contains some Leiningen middleware that does the following:
 ## Usage
 
 _If you're impatient, [skip on down](#project-repls) to start a ClojureScript
-REPL using phantomjs/slimerjs/Chrome/etc in about 10 seconds._ 
+REPL using phantomjs/slimerjs/Chrome/etc in about 10 seconds._
 
 Austin provides two types of ClojureScript REPL environments.  One, returned by
 calls to `cemerick.austin/repl-env`, is analogous to the standard ClojureScript
@@ -138,7 +138,7 @@ along to `exec-env`._
 
 Any of the above options will give you a headless ClojureScript REPL that has all
 of your project's dependencies, sources, and other resources available.
-`exec-env` uses uses `phantomjs` by default, so you'll need to have that installed
+`exec-env` uses `phantomjs` by default, so you'll need to have that installed
 and on your `PATH`.  If you are using a different _phantomjs-compatible_
 headless browser implementation (e.g. slimerjs, or perhaps your package manager
 installs phantomjs with a different name?), you can pass the name of that binary
@@ -184,6 +184,29 @@ This repo provides a completely self-contained sample project demonstrating and
 documenting how to use Austin for your browser-connected REPL'ing needs.  [Check
 it
 out](https://github.com/cemerick/austin/blob/master/browser-connected-repl-sample).
+
+### Other usage tidbits
+
+#### Server port selection
+
+By default, Austin's embedded HTTP server (which is what accepts requests from
+all JavaScript runtimes hosting a ClojureScript REPL) starts on a random
+system-assigned port.  If you're using the provided facilities for generating
+Javascript to insert into your app's HTML to connect back to the HTTP server
+(i.e. `cemerick.austin.repls/browser-connected-repl-js`), then this is ideal:
+the server will always find an open port, and running multiple applications,
+each with N browser-REPLs, will always work.
+
+However, if you need to fix the port used by the HTTP server, there are three
+ways to go about it:
+
+* set the `AUSTIN_DEFAULT_SERVER_PORT` environment variable before starting your
+  Clojure process
+* set the `cemerick.austin.default-server-port` system property; _this will only
+  take effect if you have not yet caused the server to start automatically by
+  creating a browser-REPL environment_.
+* explicitly start Austin's server, providing the desired port number, e.g.
+  `(cemerick.austin/start-server 9000)`.
 
 ## TODO
 

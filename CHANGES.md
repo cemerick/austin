@@ -1,5 +1,16 @@
 # CHANGELOG
 
+## [`0.1.1`](https://github.com/cemerick/austin/issues?milestone=1&page=1&state=closed)
+
+* The port that Austin's HTTP server starts on can now be configured via system
+  property, environment variable, or by explicitly starting it with a given port
+  number. (gh-4, gh-5)
+* A comprehensible error message is now emitted if the executable named when
+  creating a new `cemerick.austin/exec-env` (or running the
+  `cemerick.austin.repls/exec` shortcut) (`phantomjs` by default) is not
+  available. (gh-12, gh-13)
+* The `:static-dir` option is now properly utilized (gh-2)
+
 ## `0.1.0`
 
 Changes from `cljs.repl.browser`, from which this codebase was started:
