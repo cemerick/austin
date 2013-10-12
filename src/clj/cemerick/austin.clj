@@ -29,7 +29,7 @@
   "Returns the port to which the Austin HTTP server will be bound by default,
 either when first used or when restarted via nullary call to `start-server`.
 The sources of configuration are, in order:
-  
+
   * system property `cemerick.austin.default-server-port`
   * environment variable `AUSTIN_DEFAULT_SERVER_PORT`
   * default, 0 (autoselection of an open port)"
@@ -148,7 +148,7 @@ function."
 
 (defn- send-repl-client-page
   [^HttpExchange ex session-id]
-  (let [url (format "http://%s/%s/repl" 
+  (let [url (format "http://%s/%s/repl"
                     (-> ex .getRequestHeaders (get "Host") first)
                     session-id)]
     (send-response ex 200
@@ -199,7 +199,7 @@ function."
       (send-404 ex path))))
 
 (defmulti ^:private handle-post :type)
-  
+
 (defmulti ^:private handle-get
   (fn [{:keys [http-exchange session-id path]}]
     (when session-id path)))
@@ -264,8 +264,8 @@ function."
   [{:keys [http-exchange session-id path]}]
   (if session-id
     (if path
-      (send-static http-exchange session-id path) 
-      (send-repl-client-page http-exchange session-id))    
+      (send-static http-exchange session-id path)
+      (send-repl-client-page http-exchange session-id))
     (send-404 http-exchange (request-path http-exchange))))
 
 (defn ^:private handle-request
@@ -353,6 +353,7 @@ function."
         goog (provides-and-requires (cljsc/js-dependencies {} cljs))]
     (disj (set (concat cljs goog)) nil)))
 
+
 (defn repl-env
   "Create a browser-connected REPL environment.
 
@@ -376,6 +377,7 @@ function."
   [& {:as opts}]
   {:pre [(or (not (contains? opts :session-id))
              (string? (:session-id opts)))]}
+
   (let [opts (merge (BrowserEnv.)
                     {:optimizations :simple
                      :working-dir   ".repl"
@@ -383,16 +385,20 @@ function."
                      :static-dir    ["." "out/"]
                      :preloaded-libs   []
                      :src           "src/"
-                     :session-id (str (rand-int 9999))}
+                     :session-id (str (rand-int 9999))
+                     :url "localhost"}
                     opts)
+
         session-id (:session-id opts)
-        repl-url (format "http://localhost:%s/%s/repl" (get-browser-repl-port) session-id)
+        repl-url (format (str "http://" (:url opts) ":%s/%s/repl") (get-browser-repl-port) session-id)
         opts (assoc opts
                :repl-url repl-url
                :entry-url (str repl-url "/start")
                :working-dir (str (:working-dir opts) "/" session-id))
+
         preloaded-libs (set (concat (always-preload)
                               (map str (:preloaded-libs opts))))]
+
     (swap! sessions update-in [session-id] #(merge %2 %)
       (assoc session-init
         :ordering (agent {:expecting nil :fns {}})
@@ -402,6 +408,7 @@ function."
         :client-js (future (create-client-js-file
                              opts
                              (io/file (:working-dir opts) "client.js")))))
+
     (println (str "Browser-REPL ready @ " (:entry-url opts)))
     opts))
 
@@ -468,4 +475,3 @@ as :phantom-cmd, e.g.:
 ;; In any case, it can't be used here, explicitly depends on cljs.browser.repl
 ; Get reflection handlers hooked up. Presumably we want to do this all the time?
 #_(require 'cljs.repl.reflect)
-
