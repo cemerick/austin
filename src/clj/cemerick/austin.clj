@@ -373,6 +373,7 @@ function."
                   end of the REPL. Defaults to :simple.
   src:            The source directory containing user-defined cljs files. Used to
                   support reflection. Defaults to \"src/\".
+  url:            URL on which browser repl should listen. Defaults to 'localhost'.
   "
   [& {:as opts}]
   {:pre [(or (not (contains? opts :session-id))
