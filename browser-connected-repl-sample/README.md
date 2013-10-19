@@ -42,7 +42,9 @@ is), do this:
 
     to drop a snippet of JavaScript into the page that will cause the
     browser-REPL to connect to whichever REPL environment is in
-    `browser-repl-env`; your app should do likewise.
+    `browser-repl-env`; your app should do likewise. Calling order is
+    important: first the compiled ClojureScript namespace requiring
+    the browser-REPL, then above snippet.
 
 4.  Turn your Clojure REPL into a ClojureScript REPL tied to that REPL
     environment with

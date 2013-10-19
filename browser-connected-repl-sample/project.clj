@@ -7,7 +7,7 @@
                  [enlive "1.1.1"]]
 
   :profiles {:dev {:repl-options {:init-ns cemerick.austin.bcrepl-sample}
-                   :plugins [[com.cemerick/austin "0.1.0"]
+                   :plugins [[com.cemerick/austin "0.1.1"]
                              [lein-cljsbuild "0.3.2"]]
                    :cljsbuild {:builds [{:source-paths ["src/cljs"]
                                          :compiler {:output-to "target/classes/public/app.js"
