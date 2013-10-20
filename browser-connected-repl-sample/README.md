@@ -42,7 +42,9 @@ is), do this:
 
     to drop a snippet of JavaScript into the page that will cause the
     browser-REPL to connect to whichever REPL environment is in
-    `browser-repl-env`; your app should do likewise.
+    `browser-repl-env`; your app should do likewise. Be sure to load
+    the code returned by the `(browser-connected-repl-js)` call as the
+    last JavaScript loaded by your app's page.
 
 4.  Turn your Clojure REPL into a ClojureScript REPL tied to that REPL
     environment with
