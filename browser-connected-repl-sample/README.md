@@ -46,6 +46,13 @@ is), do this:
     the code returned by the `(browser-connected-repl-js)` call as the
     last JavaScript loaded by your app's page.
 
+    Note that for snippet to work, you'll need to have a `cljs` file in
+    your project that requires `clojure.browser.repl`. This project's
+    `cljs` file [has exactly that](https://github.com/cemerick/austin/blob/master/browser-connected-repl-sample/src/cljs/cemerick/austin/bcrepl_sample.cljs) in the ns declaration:
+    
+        (ns cemerick.austin.bcrepl-sample
+          (:require [clojure.browser.repl]))
+    
 4.  Turn your Clojure REPL into a ClojureScript REPL tied to that REPL
     environment with
 
