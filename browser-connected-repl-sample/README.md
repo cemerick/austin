@@ -66,6 +66,12 @@ is), do this:
 
         (js/alert "Salut!")
 
+    (Note: if you see no response, try temporarily disabling browser
+    extensions. A problem has been seen where the Google Voice
+    extension in Chrome somehow prevents the browser from listening
+    for packets from the REPL. See the full discussion in [this
+    issue](https://github.com/cemerick/austin/issues/17).
+
 You can reload your app's page as many times as you like; it will
 re-connect on each page load to the same REPL environment. If you want
 to connect to a *different* REPL environment, just put the it into
