@@ -6,7 +6,7 @@
   :min-lein-version "2.0.0"
   :source-paths ["src/clj"]
   :dependencies [[org.clojure/clojure "1.5.1"]
-                 [org.clojure/clojurescript "0.0-1847"]
+                 [org.clojure/clojurescript "0.0-2014"]
                  [com.cemerick/piggieback "0.1.1-SNAPSHOT"]]
 
   :repl-options {:nrepl-middleware [cemerick.piggieback/wrap-cljs-repl]}
