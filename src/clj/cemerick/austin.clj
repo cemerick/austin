@@ -10,6 +10,7 @@
   (:require [clojure.java.io :as io]
             [cljs.compiler :as comp]
             [cljs.closure :as cljsc]
+            [cljs.env :as env]
             [cljs.repl :as repl])
   (:import cljs.repl.IJavaScriptEnv
            java.net.InetSocketAddress
@@ -209,11 +210,13 @@ function."
   (swap! sessions #(update-in % [session-id] merge
                      {:loaded-libs (-> % (get session-id) :preloaded-libs)
                       :ordering (agent {:expecting nil :fns {}})}))
-  (send-for-eval http-exchange session-id
-    (cljsc/-compile
-      '[(ns cljs.user)
-        (set! *print-fn* clojure.browser.repl/repl-print)] {})
-    identity))
+  (env/with-compiler-env
+    (-> @sessions (get session-id) :opts ::env/compiler)
+    (send-for-eval http-exchange session-id
+                   (cljsc/-compile
+                    '[(ns cljs.user)
+                      (set! *print-fn* clojure.browser.repl/repl-print)] {})
+                   identity)))
 
 (defn- add-in-order
   [{:keys [expecting fns]} order f]
@@ -330,8 +333,11 @@ function."
                                  "load"
                                  (fn []
                                    (repl/start-evaluator url))))]
-               {:optimizations (:optimizations opts)
-                :output-dir (:working-dir opts)}))
+               ; the options value used as an ifn somewhere in cljs.closure :-/
+               (-> (into {} opts)
+                   ; TODO why isn't the :working-dir option for the brepl env
+                   ; called :output-dir in the first place?
+                   (assoc :output-dir (:working-dir opts)))))
 
 (defn- create-client-js-file [opts file-path]
   (let [file (io/file file-path)]
@@ -376,34 +382,36 @@ function."
   [& {:as opts}]
   {:pre [(or (not (contains? opts :session-id))
              (string? (:session-id opts)))]}
-  (let [opts (merge (BrowserEnv.)
-                    {:optimizations :simple
-                     :working-dir   ".repl"
-                     :serve-static  true
-                     :static-dir    ["." "out/"]
-                     :preloaded-libs   []
-                     :src           "src/"
-                     :session-id (str (rand-int 9999))}
-                    opts)
-        session-id (:session-id opts)
-        repl-url (format "http://localhost:%s/%s/repl" (get-browser-repl-port) session-id)
-        opts (assoc opts
-               :repl-url repl-url
-               :entry-url (str repl-url "/start")
-               :working-dir (str (:working-dir opts) "/" session-id))
-        preloaded-libs (set (concat (always-preload)
-                              (map str (:preloaded-libs opts))))]
-    (swap! sessions update-in [session-id] #(merge %2 %)
-      (assoc session-init
-        :ordering (agent {:expecting nil :fns {}})
-        :opts opts
-        :preloaded-libs preloaded-libs
-        :loaded-libs preloaded-libs
-        :client-js (future (create-client-js-file
-                             opts
-                             (io/file (:working-dir opts) "client.js")))))
-    (println (str "Browser-REPL ready @ " (:entry-url opts)))
-    opts))
+  (env/with-compiler-env (env/default-compiler-env)
+    (let [opts (merge (BrowserEnv.)
+                      {:optimizations :simple
+                       :working-dir   ".repl"
+                       :serve-static  true
+                       :static-dir    ["." "out/"]
+                       :preloaded-libs   []
+                       :src           "src/"
+                       :session-id (str (rand-int 9999))
+                       ::env/compiler env/*compiler*}
+                      opts)
+          session-id (:session-id opts)
+          repl-url (format "http://localhost:%s/%s/repl" (get-browser-repl-port) session-id)
+          opts (assoc opts
+                 :repl-url repl-url
+                 :entry-url (str repl-url "/start")
+                 :working-dir (str (:working-dir opts) "/" session-id))
+          preloaded-libs (set (concat (always-preload)
+                                      (map str (:preloaded-libs opts))))]
+      (swap! sessions update-in [session-id] #(merge %2 %)
+             (assoc session-init
+               :ordering (agent {:expecting nil :fns {}})
+               :opts opts
+               :preloaded-libs preloaded-libs
+               :loaded-libs preloaded-libs
+               :client-js (future (create-client-js-file
+                                   opts
+                                   (io/file (:working-dir opts) "client.js")))))
+      (println (str "Browser-REPL ready @ " (:entry-url opts)))
+      opts)))
 
 ; an IJavaScriptEnv that delegates to another [browser-env], but also manages
 ; the lifecycle of an external java.lang.Process that actually hosts evalution
@@ -423,7 +431,15 @@ function."
   (-load [this ns url] (cljs.repl/-load browser-env ns url))
   (-tear-down [_]
     (cljs.repl/-tear-down browser-env)
-    (.destroy process)))
+    (.destroy process))
+
+  clojure.lang.ILookup
+  (valAt [_ k] (get browser-env k))
+  (valAt [_ k default] (get browser-env k default))
+  
+  ; here so that (into {} env) will work, necessary for turning this env into cljsc option map
+  clojure.lang.Seqable
+  (seq [_] (seq browser-env)))
 
 (defn exec-env*
   [browser-repl-env command+args]
