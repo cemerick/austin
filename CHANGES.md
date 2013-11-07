@@ -1,5 +1,9 @@
 # CHANGELOG
 
+## `0.1.3`
+
+Released to address a derp in the upstream Piggieback dependency.
+
 ## `0.1.2`
 
 * Adds support for ClojureScript compiler environments introduced in `0.0-2014`.
