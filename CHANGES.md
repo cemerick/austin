@@ -1,5 +1,10 @@
 # CHANGELOG
 
+## [`0.1.2`]()
+
+* Adds support for ClojureScript compiler environments introduced in `0.0-2014`.
+  Now requires that version of ClojureScript or higher.
+
 ## [`0.1.1`](https://github.com/cemerick/austin/issues?milestone=1&page=1&state=closed)
 
 * The port that Austin's HTTP server starts on can now be configured via system
