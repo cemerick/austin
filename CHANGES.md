@@ -1,6 +1,6 @@
 # CHANGELOG
 
-## [`0.1.2`]()
+## `0.1.2`
 
 * Adds support for ClojureScript compiler environments introduced in `0.0-2014`.
   Now requires that version of ClojureScript or higher.

@@ -1,4 +1,4 @@
-(defproject com.cemerick/austin "0.1.2"
+(defproject com.cemerick/austin "0.1.3-SNAPSHOT"
   :description "The ClojureScript browser-repl, rebuilt stronger, faster, easier."
   :url "http://github.com/cemerick/austin"
   :license {:name "Eclipse Public License"
@@ -11,6 +11,7 @@
 
   :repl-options {:nrepl-middleware [cemerick.piggieback/wrap-cljs-repl]}
 
+  :repositories {"oss-public" "https://oss.sonatype.org/content/groups/public/"}
   ;:plugins [[com.cemerick/austin "0.1.0-SNAPSHOT"]]
 
   :scm {:url "git@github.com:cemerick/austin.git"}
