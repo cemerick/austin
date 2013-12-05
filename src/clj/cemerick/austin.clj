@@ -337,7 +337,8 @@ function."
                (-> (into {} opts)
                    ; TODO why isn't the :working-dir option for the brepl env
                    ; called :output-dir in the first place?
-                   (assoc :output-dir (:working-dir opts)))))
+                   (assoc :output-dir (:working-dir opts))
+                   (dissoc :source-map))))
 
 (defn- create-client-js-file [opts file-path]
   (let [file (io/file file-path)]
@@ -390,6 +391,7 @@ function."
                        :static-dir    ["." "out/"]
                        :preloaded-libs   []
                        :src           "src/"
+                       :source-map    true
                        :session-id (str (rand-int 9999))
                        ::env/compiler env/*compiler*}
                       opts)
