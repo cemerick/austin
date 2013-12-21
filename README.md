@@ -66,6 +66,11 @@ Austin is available in Maven Central. Add it to your `project.clj`'s list of
 :profiles {:dev {:plugins [[com.cemerick/austin "0.1.3"]]}}
 ```
 
+Also, just like in Clojure development, your ClojureScript source roots must be
+listed in e.g. `:source-paths` and/or `:test-source-paths` in order for
+ClojureScript source files to be picked up properly.  i.e. just having them
+enumerated in your lein-cljsbuild configuration(s) is not sufficient.
+
 **Note that Austin requires ClojureScript `0.0-2014` or higher.**
 
 Austin contains some Leiningen middleware that does the following:
