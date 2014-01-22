@@ -391,12 +391,13 @@ function."
                        :static-dir    ["." "out/"]
                        :preloaded-libs   []
                        :src           "src/"
+                       :host          "localhost"
                        :source-map    true
                        :session-id (str (rand-int 9999))
                        ::env/compiler env/*compiler*}
                       opts)
           session-id (:session-id opts)
-          repl-url (format "http://localhost:%s/%s/repl" (get-browser-repl-port) session-id)
+          repl-url (format "http://%s:%s/%s/repl" (:host opts) (get-browser-repl-port) session-id)
           opts (assoc opts
                  :repl-url repl-url
                  :entry-url (str repl-url "/start")
