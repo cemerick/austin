@@ -377,6 +377,8 @@ function."
                   loading code and reloading it would cause a problem.
   optimizations:  The level of optimization to use when compiling the client
                   end of the REPL. Defaults to :simple.
+  host:           The host URL on which austin will run the clojurescript repl.
+                  Defaults to \"localhost\".
   src:            The source directory containing user-defined cljs files. Used to
                   support reflection. Defaults to \"src/\".
   "
@@ -391,12 +393,13 @@ function."
                        :static-dir    ["." "out/"]
                        :preloaded-libs   []
                        :src           "src/"
+                       :host          "localhost"
                        :source-map    true
                        :session-id (str (rand-int 9999))
                        ::env/compiler env/*compiler*}
                       opts)
           session-id (:session-id opts)
-          repl-url (format "http://localhost:%s/%s/repl" (get-browser-repl-port) session-id)
+          repl-url (format "http://%s:%s/%s/repl" (:host opts) (get-browser-repl-port) session-id)
           opts (assoc opts
                  :repl-url repl-url
                  :entry-url (str repl-url "/start")
