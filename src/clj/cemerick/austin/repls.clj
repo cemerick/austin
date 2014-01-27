@@ -1,5 +1,5 @@
 (ns cemerick.austin.repls
-  (:require [cemerick.austin :refer (exec-env)]
+  (:require [cemerick.austin :refer (exec-env get-browser-repl-port)]
             [clojure.tools.nrepl.middleware.interruptible-eval :as nrepl-eval]
             [cemerick.piggieback :as pb]
             cljs.repl))
@@ -36,9 +36,11 @@ When you want your app to connect to a different REPL environment, just
 a JavaScript string that will connect the browser runtime to that REPL environment
 on load.  See `browser-repl-env` docs for more."
   []
-  (when-let [repl-url (:repl-url @browser-repl-env)]
-    (format ";goog.require('clojure.browser.repl');clojure.browser.repl.connect.call(null, '%s');"
-            repl-url)))
+  (when-let [session-id (:session-id @browser-repl-env)]
+    (format ";goog.require('clojure.browser.repl');clojure.browser.repl.connect.call(null, window.location.protocol+'//'+window.location.hostname+':%s/%s/repl');"
+            (get-browser-repl-port)
+            session-id
+            )))
 
 (defn cljs-repl
   "Same as `cljs.repl/repl`, except will use the appropriate REPL entry point
