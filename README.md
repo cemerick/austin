@@ -26,6 +26,14 @@ begun to think about the API around its configuration and project integration
 (in particular, the `cemerick.austin.repls` namespace).  It all works nice, but
 changes in that department are almost surely going to happen.
 
+### Compatibility
+
+When using Austin via nREPL, it depends upon
+[Piggieback](https://github.com/cemerick/piggieback). Please refer to
+[Piggieback's compatibility notes](https://github.com/cemerick/piggieback#compatibility-notes)
+to see if there are any known problems with using it (and therefore Austin)
+with your preferred toolchain.
+
 ## Changelog
 
 Available [here](http://github.com/cemerick/austin/blob/master/CHANGES.md).
