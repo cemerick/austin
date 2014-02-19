@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## [`0.1.4`](https://github.com/cemerick/austin/issues?milestone=2&state=closed)
+
+* Austin REPLs now have ClojureScript source maps turned on by default. (gh-33)
+* `cemerick.austin/repl-env` (and all helper functions that delegate to it) now
+  accept a `:host` option (defaults to `"localhost"`, can be any
+  network-addressable hostname) (gh-41)
+
 ## `0.1.3`
 
 Released to address a derp in the upstream Piggieback dependency.

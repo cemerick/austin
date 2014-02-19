@@ -71,7 +71,7 @@ Austin is available in Maven Central. Add it to your `project.clj`'s list of
 `:plugins`, probably in your `:dev` profile:
 
 ```clojure
-:profiles {:dev {:plugins [[com.cemerick/austin "0.1.3"]]}}
+:profiles {:dev {:plugins [[com.cemerick/austin "0.1.4"]]}}
 ```
 
 Also, just like in Clojure development, your ClojureScript source roots must be
