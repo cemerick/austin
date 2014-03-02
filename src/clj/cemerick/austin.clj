@@ -343,7 +343,7 @@ function."
 (defn- create-client-js-file [opts file-path]
   (let [file (io/file file-path)]
     (when (not (.exists file))
-      (spit file (compile-client-js opts)))
+      (spit file (with-out-str (compile-client-js (assoc opts :output-to :print)))))
     file))
 
 (defn- provides-and-requires
