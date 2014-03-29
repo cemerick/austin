@@ -385,7 +385,7 @@ function."
   [& {:as opts}]
   {:pre [(or (not (contains? opts :session-id))
              (string? (:session-id opts)))]}
-  (env/with-compiler-env (env/default-compiler-env)
+  (env/with-compiler-env (env/default-compiler-env opts)
     (let [opts (merge (BrowserEnv.)
                       {:optimizations :simple
                        :working-dir   ".repl"
