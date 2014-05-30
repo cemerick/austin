@@ -166,8 +166,7 @@ function."
            "<script type=\"text/javascript\">
             clojure.browser.repl.client.start(" (pr-str url) ");
             </script>"
-           (repl-client-code session-id)
-           "</body></html>"))))
+            "</body></html>"))))
 
 (defn- send-repl-index
   [ex session-id]
