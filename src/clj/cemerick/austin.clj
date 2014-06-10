@@ -184,6 +184,18 @@ function."
            (repl-client-code session-id)
            "</body></html>"))))
 
+(defn- file-or-resource
+  [path]
+  (cond
+   (.exists (io/file path))
+   path
+
+   (re-find #"^\./" path)
+   (io/resource (subs path 2))
+
+   :else
+   (io/resource path)))
+
 (defn- send-static
   [ex session-id path]
   (let [opts (get @sessions session-id)
@@ -192,8 +204,9 @@ function."
           (not= "/favicon.ico" path))
       (let [path (if (= "/" path) "/index.html" path)]
         (if-let [local-path (seq (for [x (if (string? st-dir) [st-dir] st-dir)
-                                       :when (.exists (io/file (str x path)))]
-                                   (str x path)))]
+                                       :let [found (file-or-resource (str x path))]
+                                       :when found]
+                                   found))]
           (send-response ex 200 (slurp (first local-path)) :content-type
             (condp #(.endsWith %2 %1) path
               ".html" "text/html"
