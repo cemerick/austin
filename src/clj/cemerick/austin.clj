@@ -324,6 +324,16 @@ function."
   (-tear-down [this]
     (swap! sessions dissoc (:session-id this))))
 
+; squelch default verbose record printing so we don't kill people's scrollback
+(defmethod print-method BrowserEnv [env ^java.io.Writer w]
+  (.write w (str env)))
+(defmethod print-dup BrowserEnv [o w]
+  (print-method o w))
+(#'clojure.pprint/use-method
+  clojure.pprint/simple-dispatch
+  BrowserEnv
+  #'clojure.pprint/pprint-simple-default)
+
 (defn- compile-client-js [opts]
   (cljsc/build '[(ns clojure.browser.repl.client
                    (:require [goog.events :as event]
