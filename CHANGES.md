@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## `0.1.5`
+
+* Austin's browser REPL environment will no longer print verbosely when it is
+  the result of an evaluation.
+* Official (non-SNAPSHOT) support for `cljs.env/default-compiler-env`'s options.
+* Minor documentation tweaks.
+
 ## [`0.1.4`](https://github.com/cemerick/austin/issues?milestone=2&state=closed)
 
 * Austin REPLs now have ClojureScript source maps turned on by default. (gh-33)
