@@ -74,11 +74,6 @@ Austin is available in Maven Central. Add it to your `project.clj`'s list of
 :profiles {:dev {:plugins [[com.cemerick/austin "0.1.4"]]}}
 ```
 
-**WARNING Austin is not compatible with the (currently) latest ClojureScript release.**
-([context](https://github.com/cemerick/austin/issues/55)) Use ClojureScript `0.0-2156`
-until the a new ClojureScript release is cut that includes the resolution of the
-underlying issue.
-
 Also, just like in Clojure development, your ClojureScript source roots must be
 listed in e.g. `:source-paths` and/or `:test-source-paths` in order for
 ClojureScript source files to be picked up properly.  i.e. just having them
