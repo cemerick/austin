@@ -365,9 +365,9 @@ function."
 (defn- always-preload
   "Return a list of all namespaces which are always loaded into the browser
   when using a browser-connected REPL."
-  []
-  (let [cljs (provides-and-requires (cljsc/cljs-dependencies {} ["clojure.browser.repl"]))
-        goog (provides-and-requires (cljsc/js-dependencies {} cljs))]
+  [opts]
+  (let [cljs (provides-and-requires (cljsc/cljs-dependencies opts ["clojure.browser.repl"]))
+        goog (provides-and-requires (cljsc/js-dependencies opts cljs))]
     (disj (set (concat cljs goog)) nil)))
 
 (defn repl-env
@@ -377,11 +377,11 @@ function."
 
   session-id:     The id of the (pre-existing) session to bind to
   working-dir:    The directory where the compiled REPL client JavaScript will
-                  be stored. Defaults to \".repl\".
+                  be stored. Defaults to \"target/austin/repl\".
   serve-static:   Should the REPL server attempt to serve static content?
                   Defaults to true.
   static-dir:     List of directories to search for static content. Defaults to
-                  [\".\" \"out/\"].
+                  [\".\" \"target/austin/out/\"].
   preloaded-libs: List of namespaces that should not be sent from the REPL server
                   to the browser. This may be required if the browser is already
                   loading code and reloading it would cause a problem.
@@ -398,9 +398,9 @@ function."
   (env/with-compiler-env (env/default-compiler-env opts)
     (let [opts (merge (BrowserEnv.)
                       {:optimizations :simple
-                       :working-dir   ".repl"
+                       :working-dir   "target/austin/repl"
                        :serve-static  true
-                       :static-dir    ["." "out/"]
+                       :static-dir    ["." "target/austin/out/"]
                        :preloaded-libs   []
                        :src           "src/"
                        :host          "localhost"
@@ -414,8 +414,10 @@ function."
                  :repl-url repl-url
                  :entry-url (str repl-url "/start")
                  :working-dir (str (:working-dir opts) "/" session-id))
-          preloaded-libs (set (concat (always-preload)
-                                      (map str (:preloaded-libs opts))))]
+          preloaded-libs (set
+                          (concat
+                           (always-preload {:output-dir (:working-dir opts)})
+                           (map str (:preloaded-libs opts))))]
       (swap! sessions update-in [session-id] #(merge %2 %)
              (assoc session-init
                :ordering (agent {:expecting nil :fns {}})
