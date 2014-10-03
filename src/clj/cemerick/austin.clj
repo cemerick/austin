@@ -318,7 +318,7 @@ function."
     (swap! sessions update-in [(:session-id this) :*out*] (constantly *out*))
     (require 'cljs.repl.reflect)
     (repl/analyze-source (:src this))
-    (comp/with-core-cljs))
+    (comp/with-core-cljs nil (fn [])))
   (-evaluate [this _ _ js] (browser-eval (:session-id this) js))
   (-load [this ns url] (load-javascript this ns url))
   (-tear-down [this]
