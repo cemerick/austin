@@ -481,17 +481,20 @@ evaluate:
 If you are using a different _phantomjs-compatible_ headless browser
 implementation (e.g. slimerjs, or perhaps your package manager installs
 phantomjs with a different name?), you can pass the name of that binary
-as :phantom-cmd, e.g.:
+as :phantom-cmd, or a series of arguments to start a phantomjs-compatible process
+as :phantom-cmds, e.g.:
 
-  (exec-env :phantom-cmd \"slimerjs\")"
-  [& {:keys [exec-cmds phantom-cmd] :as args}]
+  (exec-env :phantom-cmd \"slimerjs\")
+  (exec-env :phantom-cmds [\"xvfb-run\" \"slimerjs\"])"
+  [& {:keys [exec-cmds phantom-cmd phantom-cmds] :as args}]
   (let [exec-command (or exec-cmds
-                       [(or phantom-cmd "phantomjs")
-                        (let [f (doto (java.io.File/createTempFile "phantomjs_repl" ".js")
-                                  .deleteOnExit
-                                  (spit (str "var page = require('webpage').create();"
-                                          "page.open(require('system').args[1]);")))]
-                          (.getAbsolutePath f))])
+                       (conj (or phantom-cmds
+                               [(or phantom-cmd "phantomjs")])
+                         (let [f (doto (java.io.File/createTempFile "phantomjs_repl" ".js")
+                                   .deleteOnExit
+                                   (spit (str "var page = require('webpage').create();"
+                                           "page.open(require('system').args[1]);")))]
+                           (.getAbsolutePath f))))
         benv (apply repl-env (apply concat (dissoc args :exec-cmds)))]
     (exec-env* benv exec-command)))
 
