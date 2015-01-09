@@ -314,11 +314,11 @@ function."
 
 (defrecord BrowserEnv []
   repl/IJavaScriptEnv
-  (-setup [this]
+  (-setup [this options]
     (swap! sessions update-in [(:session-id this) :*out*] (constantly *out*))
     (require 'cljs.repl.reflect)
-    (repl/analyze-source (:src this))
-    (comp/with-core-cljs))
+    (some-> this :src repl/analyze-source)
+    (comp/with-core-cljs options))
   (-evaluate [this _ _ js] (browser-eval (:session-id this) js))
   (-load [this ns url] (load-javascript this ns url))
   (-tear-down [this]
@@ -432,8 +432,8 @@ function."
 ; the lifecycle of an external java.lang.Process that actually hosts evalution
 (deftype DelegatingExecEnv [browser-env command ^:volatile-mutable process]
   cljs.repl/IJavaScriptEnv
-  (-setup [this]
-    (cljs.repl/-setup browser-env)
+  (-setup [this options]
+    (cljs.repl/-setup browser-env options)
     (let [command (into-array String (concat command [(:entry-url browser-env)]))]
       (set! process (try
                       (.. Runtime getRuntime (exec command))
