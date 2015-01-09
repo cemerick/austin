@@ -20,7 +20,7 @@ ahead for detailed documentation.
 
 ## Status
 
-I've been using this browser-repl alternative for ~six months with good results,
+I've been using this browser-repl alternative for more than a year with good results,
 and others have banged it around some as well.  That said, I've only recently
 begun to think about the API around its configuration and project integration
 (in particular, the `cemerick.austin.repls` namespace).  It all works nice, but
@@ -71,7 +71,7 @@ Austin is available in Maven Central. Add it to your `project.clj`'s list of
 `:plugins`, probably in your `:dev` profile:
 
 ```clojure
-:profiles {:dev {:plugins [[com.cemerick/austin "0.1.5"]]}}
+:profiles {:dev {:plugins [[com.cemerick/austin "0.1.6"]]}}
 ```
 
 Also, just like in Clojure development, your ClojureScript source roots must be
@@ -79,7 +79,7 @@ listed in e.g. `:source-paths` and/or `:test-source-paths` in order for
 ClojureScript source files to be picked up properly.  i.e. just having them
 enumerated in your lein-cljsbuild configuration(s) is not sufficient.
 
-**Note that Austin requires ClojureScript `0.0-2199` or higher.**
+**Note that Austin requires ClojureScript `0.0-2665` or higher.**
 
 Austin contains some Leiningen middleware that does the following:
 
@@ -244,7 +244,7 @@ list(s) that took the time to take Austin for a spin when it was still just a
 Copyright ©2013 [Chas Emerick](http://cemerick.com) and other contributors.
 
 ```
-Copyright (c) Rich Hickey. All rights reserved. The use and
+Portions copyright (c) Rich Hickey. All rights reserved. The use and
 distribution terms for this software are covered by the Eclipse
 Public License 1.0 (http://opensource.org/licenses/eclipse-1.0.php)
 which can be found in the file epl-v10.html at the root of this

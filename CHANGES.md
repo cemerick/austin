@@ -1,5 +1,11 @@
 # CHANGELOG
 
+## `0.1.6`
+
+* Changed to track ClojureScript REPL API changes in >= 2665
+* `exec-env` now supports `:phantom-cmds`, for phantomjs-compatible command
+  lines that require arguments
+
 ## `0.1.5`
 
 * Austin's browser REPL environment will no longer print verbosely when it is
