@@ -1,4 +1,4 @@
-(defproject com.cemerick/austin "0.1.6"
+(defproject com.cemerick/austin "0.1.7-SNAPSHOT"
   :description "The ClojureScript browser-repl, rebuilt stronger, faster, easier."
   :url "http://github.com/cemerick/austin"
   :license {:name "Eclipse Public License"
@@ -7,7 +7,7 @@
   :source-paths ["src/clj"]
   :dependencies [[org.clojure/clojure "1.6.0"]
                  [org.clojure/clojurescript "0.0-2665"]
-                 [com.cemerick/piggieback "0.1.4"]]
+                 [com.cemerick/piggieback "0.1.5"]]
 
   :repl-options {:nrepl-middleware [cemerick.piggieback/wrap-cljs-repl]}
 
