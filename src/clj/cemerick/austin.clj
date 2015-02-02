@@ -147,6 +147,12 @@ function."
     (format ";console.error('Austin ClojureScript REPL session %s does not exist. Maybe you have a stale ClojureScript REPL environment in `cemerick.austin.repls/browser-repl-env`?');"
             session-id)))
 
+(defn- repl-client-code [session-id]
+  (-> (get @sessions session-id) :client-code))
+
+(defn- include-js [url]
+  (format "<script type=\"text/javascript\" src=\"%s\"></script>" url))
+
 (defn- send-repl-client-page
   [^HttpExchange ex session-id]
   (let [url (format "http://%s/%s/repl" 
@@ -160,7 +166,7 @@ function."
            "<script type=\"text/javascript\">
             clojure.browser.repl.client.start(" (pr-str url) ");
             </script>"
-           "</body></html>"))))
+            "</body></html>"))))
 
 (defn- send-repl-index
   [ex session-id]
@@ -175,7 +181,20 @@ function."
            "<script type=\"text/javascript\">
             clojure.browser.repl.connect(" (pr-str url) ");
             </script>"
+           (repl-client-code session-id)
            "</body></html>"))))
+
+(defn- file-or-resource
+  [path]
+  (cond
+   (.exists (io/file path))
+   path
+
+   (re-find #"^\./" path)
+   (io/resource (subs path 2))
+
+   :else
+   (io/resource path)))
 
 (defn- send-static
   [ex session-id path]
@@ -185,8 +204,9 @@ function."
           (not= "/favicon.ico" path))
       (let [path (if (= "/" path) "/index.html" path)]
         (if-let [local-path (seq (for [x (if (string? st-dir) [st-dir] st-dir)
-                                       :when (.exists (io/file (str x path)))]
-                                   (str x path)))]
+                                       :let [found (file-or-resource (str x path))]
+                                       :when found]
+                                   found))]
           (send-response ex 200 (slurp (first local-path)) :content-type
             (condp #(.endsWith %2 %1) path
               ".html" "text/html"
@@ -385,6 +405,8 @@ function."
   preloaded-libs: List of namespaces that should not be sent from the REPL server
                   to the browser. This may be required if the browser is already
                   loading code and reloading it would cause a problem.
+  inject-html:    Additional HTML code to be included in REPL page (default \"\")
+  inject-scripts  List of additional javascript files to be loaded from repl page.
   optimizations:  The level of optimization to use when compiling the client
                   end of the REPL. Defaults to :simple.
   host:           The host URL on which austin will run the clojurescript repl.
@@ -402,6 +424,8 @@ function."
                        :serve-static  true
                        :static-dir    ["." "out/"]
                        :preloaded-libs   []
+                       :inject-html   ""
+                       :inject-scripts []
                        :src           "src/"
                        :host          "localhost"
                        :source-map    true
@@ -424,7 +448,9 @@ function."
                :loaded-libs preloaded-libs
                :client-js (future (create-client-js-file
                                    opts
-                                   (io/file (:working-dir opts) "client.js")))))
+                                   (io/file (:working-dir opts) "client.js")))
+               :client-code (str (apply str (map include-js (:inject-scripts opts)))
+                                 (:inject-html opts))))
       (println (str "Browser-REPL ready @ " (:entry-url opts)))
       opts)))
 
