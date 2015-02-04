@@ -175,6 +175,8 @@ function."
            "<script type=\"text/javascript\">
             clojure.browser.repl.connect(" (pr-str url) ");
             </script>"
+           "<p>This page serves as a JavaScript engine to execute
+            ClojureScript code entered into your nREPL session.</p>"
            "</body></html>"))))
 
 (defn- send-static
@@ -425,7 +427,7 @@ function."
                :client-js (future (create-client-js-file
                                    opts
                                    (io/file (:working-dir opts) "client.js")))))
-      (println (str "Browser-REPL ready @ " (:entry-url opts)))
+      (println (str "Open this page in your browser: " (:entry-url opts)))
       opts)))
 
 ; an IJavaScriptEnv that delegates to another [browser-env], but also manages
