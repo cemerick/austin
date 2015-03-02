@@ -223,6 +223,10 @@ ways to go about it:
 * explicitly start Austin's server, providing the desired port number, e.g.
   `(cemerick.austin/start-server 9000)`.
 
+#### Limitations
+
+* cljsbuild `:none` optimization option is not supported
+
 ## TODO
 
 * ISO a reasonable automated test strategy
