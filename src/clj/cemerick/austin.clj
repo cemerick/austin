@@ -279,9 +279,10 @@ function."
         "GET" (handle-get {:path static-path
                            :session-id session-id
                            :http-exchange req})
-        "POST" (handle-post (assoc (-> req .getRequestBody io/reader slurp read-string)
-                                   :http-exchange req
-                                   :session-id session-id)))
+        "POST" (handle-post (with-open [reader (-> req .getRequestBody io/reader)]
+                              (assoc (-> reader slurp read-string)
+                                :http-exchange req
+                                :session-id session-id))))
       (catch Throwable t (.printStackTrace t)))))
 
 (defn- browser-eval
