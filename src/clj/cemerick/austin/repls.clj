@@ -46,7 +46,7 @@ on load.  See `browser-repl-env` docs for more."
 environment (i.e. whether nREPL is being used or not, respectively)."
   [repl-env & options]
  (if (thread-bound? #'nrepl-eval/*msg*)
-    (apply pb/cljs-repl :repl-env repl-env options)
+    (apply pb/cljs-repl repl-env options)
     (apply cljs.repl/repl repl-env options)))
 
 (defn exec
